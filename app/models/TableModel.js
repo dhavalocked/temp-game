@@ -51,7 +51,7 @@ tableModel.prototype.updateUser = async (data, callback) => {
       .findOneAndUpdate(
         { day: data.day },
         { $set: { user: data.user } },
-        { returnNewDocument: true }
+        { returnNewDocument: true , returnOriginal : false}
       );
 
     return {
