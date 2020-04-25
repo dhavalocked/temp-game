@@ -1,4 +1,5 @@
 var db = require('../../db');
+const {ObjectId} = require('mongodb');
 
 var tableModel = function() {};
 
@@ -13,13 +14,15 @@ tableModel.prototype.createTable = async (data, callback) => {
 
   let tableData = {
     day: today,
-    user: data.user
+    user: data.user,
+    gameName : data.gameName ,
+    createdAt :  new Date()
   };
   try {
     let flag = await db
       .get()
-      .collection('rummy_tables')
-      .findOne({ day: today });
+      .collection('rummy_tables_temp')
+      .findOne({ day: today, gameName : data.gameName });
 
     if (flag) {
       err.message = 'Table already exist, Use update table instead';
@@ -28,7 +31,7 @@ tableModel.prototype.createTable = async (data, callback) => {
 
     let result = await db
       .get()
-      .collection('rummy_tables')
+      .collection('rummy_tables_temp')
       .insertOne(tableData);
 
     return {
@@ -47,9 +50,9 @@ tableModel.prototype.updateUser = async (data, callback) => {
     var err = {};
     let result = await db
       .get()
-      .collection('rummy_tables')
+      .collection('rummy_tables_temp')
       .findOneAndUpdate(
-        { day: data.day },
+        { _id: ObjectId(data._id) },
         { $set: { user: data.user } },
         { returnNewDocument: true , returnOriginal : false}
       );
@@ -65,12 +68,55 @@ tableModel.prototype.updateUser = async (data, callback) => {
   }
 };
 
+tableModel.prototype.getTables = async (data, callback) => {
+  let err = {};
+
+  var today = new Date();
+  var dd = String(today.getDate()).padStart(2, '0');
+  var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+  var yyyy = today.getFullYear();
+
+  today = dd + '/' + mm + '/' + yyyy;
+
+  let games;
+  let user;
+
+  try {
+    user = await db
+      .get()
+      .collection('rummy_tables_temp')
+      .find({ day: today })
+      .sort({_id : -1})
+      .limit(1)
+      .toArray()
+    if(user.length > 0){
+      games = await db
+      .get()
+      .collection('rummy_games_temp')
+      .find({ tableId: user[0]._id.toString() })
+      .toArray();
+    }
+  } catch (error) {
+    console.log('GET TABLES ERROR......:  ', error);
+    err.message = 'Unable to show tables, Please try again';
+    return {
+      error: err,
+      result: null
+    };
+  }
+
+  return {
+    error: null,
+    result: { games: games, user: user }
+  };
+};
+
 tableModel.prototype.createGame = async (data, callback) => {
   try {
     var err = {};
     let result = await db
       .get()
-      .collection('rummy_games')
+      .collection('rummy_games_temp')
       .insertOne(data);
 
     return {
@@ -89,9 +135,9 @@ tableModel.prototype.updateGame = async (data, callback) => {
     var err = {};
     let result = await db
       .get()
-      .collection('rummy_games')
+      .collection('rummy_games_temp')
       .findOneAndUpdate(
-        { id: data.id, day: data.day },
+        { _id: ObjectId(data._id) },
         { $set: { users: data.users } },
         { returnNewDocument: true, returnOriginal : false }
       );
@@ -110,42 +156,6 @@ tableModel.prototype.updateGame = async (data, callback) => {
   }
 };
 
-tableModel.prototype.getTables = async (data, callback) => {
-  let err = {};
-  var today = new Date();
-  var dd = String(today.getDate()).padStart(2, '0');
-  var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
-  var yyyy = today.getFullYear();
 
-  today = dd + '/' + mm + '/' + yyyy;
-
-  let games;
-  let user;
-
-  try {
-    user = await db
-      .get()
-      .collection('rummy_tables')
-      .find({ day: today })
-      .toArray();
-    games = await db
-      .get()
-      .collection('rummy_games')
-      .find({ day: today })
-      .toArray();
-  } catch (error) {
-    console.log('GET TABLES ERROR......:  ', error);
-    err.message = 'Unable to show tables, Please try again';
-    return {
-      error: err,
-      result: null
-    };
-  }
-
-  return {
-    error: null,
-    result: { games: games, user: user }
-  };
-};
 
 module.exports = tableModel;

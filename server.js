@@ -37,18 +37,20 @@ app.post('/createTable', function (req, res) {
   tableController.createTable(req, res);
 });
 
-app.post('/createGame', function (req, res) {
-  tableController.createGame(req, res);
+app.post('/updateUser', function (req, res) {
+  tableController.updateUser(req, res);
 });
 
 app.post('/getTables', function (req, res) {
   tableController.getTables(req, res);
 });
 
+app.post('/createGame', function (req, res) {
+  tableController.createGame(req, res);
+});
+
 app.post('/updateGame', function (req, res) {
   tableController.updateGame(req, res);
 });
 
-app.post('/updateUser', function (req, res) {
-  tableController.updateUser(req, res);
-});
+

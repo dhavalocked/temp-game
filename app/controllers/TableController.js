@@ -5,9 +5,9 @@ var utils = require('../utils/utils')
 // Create a table for new date
 exports.createTable = async (req, res) => {
 
-    if (typeof req.body.user === 'undefined'){
+    if (typeof req.body.user === 'undefined' || typeof req.body.gameName === 'undefined' ){
         var err = {
-            message: "Invalid credentials provided, please provide users to create table."
+            message: "Invalid credentials provided, please provide users and gameName to create table."
         }
         return res.send(utils.formatErrorResponce(err));
     }
@@ -28,9 +28,9 @@ exports.createTable = async (req, res) => {
 exports.createGame = async (req, res) => {
 
     if (typeof req.body.users === 'undefined' || typeof req.body.id === 'undefined' 
-    || typeof req.body.name === 'undefined' || typeof req.body.day === 'undefined' ){
+    || typeof req.body.name === 'undefined' || typeof req.body.tableId === 'undefined' ){
         var err = {
-            message: "Invalid credentials provided, please provide users, id, day and name to add game."
+            message: "Invalid credentials provided, please provide users, id, _id and name to add game."
         }
         return res.send(utils.formatErrorResponce(err));
     }
@@ -51,9 +51,9 @@ exports.createGame = async (req, res) => {
 exports.updateGame = async (req, res) => {
 
     if (typeof req.body.users === 'undefined' || typeof req.body.id === 'undefined' 
-    || typeof req.body.name === 'undefined' || typeof req.body.day === 'undefined' ){
+    || typeof req.body.name === 'undefined' || typeof req.body._id === 'undefined' ){
         var err = {
-            message: "Invalid credentials provided, please provide users, id, day, _id and name to add game."
+            message: "Invalid credentials provided, please provide users, id, _id and name to add game."
         }
         return res.send(utils.formatErrorResponce(err));
     }
@@ -82,9 +82,9 @@ exports.getTables = async (req, res) => {
 
 exports.updateUser = async (req, res) => {
 
-    if (typeof req.body.user === 'undefined' || typeof req.body.day === 'undefined'){
+    if (typeof req.body.user === 'undefined' || typeof req.body._id === 'undefined'){
         var err = {
-            message: "Invalid credentials provided, please provide users and day to update table."
+            message: "Invalid credentials provided, please provide users and _id to update table."
         }
         return res.send(utils.formatErrorResponce(err));
     }
